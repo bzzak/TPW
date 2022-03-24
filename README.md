@@ -1,2 +1,7 @@
-# TPW
-Projekt stworzony na potrzeby przedmiotu Programowanie Wsółbieżne realizowanego w ramach kierunku Informatyka Stosowana na Politechnice Łódzkiej
+# Concurrent programming
+
+## Working Group
+
+| Name Surname (initials) | GUID                                     |
+| ----------------------- | ---------------------------------------- |
+| Bartosz Żak             | `{   ???                              }` |
