@@ -1,8 +1,9 @@
 ﻿using System;
+using Logic;
 
 namespace Model
 {
-    public class Class1
+    public abstract class ModelAPI
     {
     }
 }
