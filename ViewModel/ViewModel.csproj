@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -7,5 +7,26 @@
   <ItemGroup>
     <ProjectReference Include="..\Model\Model.csproj" />
   </ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="PresentationCore">
+			<HintPath>C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.0\PresentationCore.dll</HintPath>
+			<Aliases>PresentationCore</Aliases>
+		</Reference>
+		<Reference Include="PresentationFramework">
+			<HintPath>C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.0\PresentationFramework.dll</HintPath>
+			<Aliases>PresentationFramework,%(Aliases)</Aliases>
+		</Reference>
+		<Reference Include="WindowsBase">
+			<HintPath>C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.0\WindowsBase.dll</HintPath>
+			<Aliases>WindowsBase</Aliases>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Update="NETStandard.Library">
+	    <Aliases>Standard</Aliases>
+	  </PackageReference>
+	</ItemGroup>
 
 </Project>

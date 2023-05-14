@@ -13,6 +13,8 @@ namespace Data
 
     public class Ball
     {
+        //private
+        private float speed;
         // properties
         public Random Rand { get; } = new Random();
         public int R { get; }
@@ -20,9 +22,9 @@ namespace Data
         public Vector2 Direction { get; private set; }
         public float Speed
         {
-            get => Speed;
+            get => speed;
 
-            set => Speed = value <= 0.001 ? 0.001f : value;
+            set => speed = value <= 0.001 ? 0.001f : value;
         }
 
         // constructors
@@ -76,7 +78,8 @@ namespace Data
             //Randomize direction vector
             float x = (float)(0.0001 * X_turn * (1 + Rand.Next(10000)));
             float y = (float)(0.0001 * Y_turn * (1 + Rand.Next(10000)));
-            Direction = new Vector2(x,y);
+            Vector2 temp = new Vector2(x, y);
+            Direction = new Vector2(x / temp.Length(), y / temp.Length());
         }
 
         // method to set random speed in given range

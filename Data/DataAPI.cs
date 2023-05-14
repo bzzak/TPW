@@ -8,6 +8,9 @@ namespace Data
     public abstract class DataAPI
     {
         public Area Area { get; set; }
+        public int R { get; protected set; }
+        public double MinSpeed { get; protected set; }
+        public double MaxSpeed { get; protected set; }
         public abstract int Amount { get; }
         public abstract void AddBalls(int amount);
         public abstract void RemoveBalls(int amount);
@@ -20,18 +23,21 @@ namespace Data
         public abstract float GetSpeed(int i);
         public abstract int GetRadius(int i);
         
-        public static DataAPI CreateDataLayer(int width, int height)
+        public static DataAPI CreateDataLayer(int width, int height, int r, double minSpeed, double maxSpeed)
         {
-            return new DataLayer(width, height);
+            return new DataLayer(width, height, r, minSpeed, maxSpeed);
         }
     }
 
     //  Concrete implementation of DataAPI abstract api
     internal class DataLayer : DataAPI
     {
-        public DataLayer(int areaWidth, int areaHeight)
+        public DataLayer(int areaWidth, int areaHeight, int radius, double minSpeed, double maxSpeed)
         {
             Area = new Area(areaWidth, areaHeight);
+            R = radius;
+            MinSpeed = minSpeed;
+            MaxSpeed = maxSpeed;
         }
 
         public override int Amount => Area.BallList.Count;
@@ -40,13 +46,14 @@ namespace Data
         {
             for (int i = 0; i < amount; i++)
             {
-                Area.BallList.Add(new Ball(30f, 30f, 5, 3.0f));
+                Area.BallList.Add(new Ball(R, Area.Width, Area.Height, MinSpeed, MaxSpeed));
             }
         }
         public override void RemoveBalls(int count)
         {
             int startIndex = count > Amount ? 0 : Amount - count;
-            for (int i = startIndex; i < Amount; i++)
+            int amountBeforeRemove = Amount;
+            for (int i = startIndex; i < amountBeforeRemove; i++)
             {
                 Area.BallList.Remove(Area.BallList[Amount - 1]);
             }

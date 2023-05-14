@@ -4,9 +4,64 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:View"
+        xmlns:mv="clr-namespace:ViewModel;assembly=ViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Elastic Collision" Height="450" Width="800">
+    <Window.DataContext>
+        <mv:MainWindowViewModel/>
+    </Window.DataContext>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1.5*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1.5*" />
+            <RowDefinition Height="9*" />
+        </Grid.RowDefinitions>
 
+        <ItemsControl ItemsSource="{Binding Balls}" Grid.Row="4" Grid.Column="0" Grid.RowSpan="1" Grid.ColumnSpan="7" HorizontalAlignment="Left" VerticalAlignment="Top " Margin="0,0,0,0">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas Background="DarkSlateGray"  Width="800" Height="290"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="{x:Type ContentPresenter}">
+                    <Setter Property="Canvas.Left" Value="{Binding X}" />
+                    <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Ellipse Width="{Binding Size}" Height="{Binding Size}" Fill="LightCoral" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Button IsEnabled="{Binding CanResume}" Grid.Row="0" Grid.Column="6" Grid.RowSpan="2" Content="START" Width="120" Height="50" Background="Green" HorizontalAlignment="Center" Margin="10,10,10,10" VerticalAlignment="Center" Command="{Binding ResumeSimulationAction}"/>
+        <Button IsEnabled="{Binding CanStop}"  Grid.Row="2" Grid.Column="6" Grid.RowSpan="2" Content="STOP" Width="120" Height="50" Background="Red" HorizontalAlignment="Center" Margin="10,10,10,10" VerticalAlignment="Center" Command="{Binding StopSimulationAction}"/>
+        <Button IsEnabled="{Binding CanAddBalls}" Grid.Row="0" Grid.Column="1"  Content="ADD" Width="120" Height="40" Background="Green" HorizontalAlignment="Center" Margin="10,10,10,10" VerticalAlignment="Center" Command="{Binding AddBallsAction}"/>
+        <Button IsEnabled="{Binding CanRemoveBalls}" Grid.Row="0" Grid.Column="0"  Content="REMOVE" Width="120" Height="40" Background="Red" HorizontalAlignment="Center" Margin="10,10,10,10" VerticalAlignment="Center" Command="{Binding RemoveBallsAction}"/>
+        <Button IsEnabled="{Binding CanLowerSpeed}"  Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" Content="DEC" Width="80" Height="50" Background="Red" HorizontalAlignment="Center" Margin="10,10,10,10" VerticalAlignment="Center" Command="{Binding LowerSpeedAction}"/>
+        <Button IsEnabled="{Binding CanIncreaseSpeed}"  Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="2" Content="INC" Width="80" Height="50" Background="Green" HorizontalAlignment="Center" Margin="10,10,10,10" VerticalAlignment="Center" Command="{Binding IncreaseSpeedAction}"/>
+        <Button IsEnabled="{Binding CanLowerSpeedInterval}"  Grid.Row="1" Grid.Column="2" Grid.RowSpan="2" Content="-" FontSize="25" Width="40" Height="40"  HorizontalAlignment="Right" Margin="10,10,0,10" VerticalAlignment="Center" Command="{Binding LowerSpeedIntervalAction}"/>
+        <Button IsEnabled="{Binding CanIncreaseSpeedInterval}"  Grid.Row="1" Grid.Column="5" Grid.RowSpan="2" Content="+" FontSize="25" Width="40" Height="40"  HorizontalAlignment="Left" Margin="0,10,10,10" VerticalAlignment="Center" Command="{Binding IncreaseSpeedIntervalAction}"/>
+        <TextBox x:Name="AmountTextBox" Text="{Binding AmountText}" Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Width="140" Margin="10,10,10,10" Height="29" Background="LightGray"/>
+        <TextBlock Text="AMOUNT :" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="1" Width="120" Height="60" FontSize="18" TextAlignment="Right" HorizontalAlignment="Center" Margin="10,0,10,10" VerticalAlignment="Top"/>
+        <TextBlock Text="{Binding BallsOnScreen}" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" Width="120" Height="60" FontSize="18" TextAlignment="Left" HorizontalAlignment="Center" Margin="10,0,10,10" VerticalAlignment="Top"/>
+        <TextBlock Text="{Binding SpeedIntervalValue}" Grid.Row="1" Grid.Column="3"  Grid.RowSpan="2" Grid.ColumnSpan="2" Width="94" Height="20" FontSize="13" TextAlignment="Center" HorizontalAlignment="Center" Margin="0,20,0,0" VerticalAlignment="Top"/>
+        <TextBlock Text="SPEED :" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="1" Width="60" Height="20" FontSize="18" TextAlignment="Right" HorizontalAlignment="Center" Margin="10,0,0,0" VerticalAlignment="Top"/>
+        <TextBlock Text="{Binding SpeedChangeStatus}" Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="3" Width="225" Height="20" FontSize="18" TextAlignment="Left" HorizontalAlignment="Center" Margin="10,0,0,0" VerticalAlignment="Top" Foreground="{Binding SpeedChangeStatusColor}"/>
     </Grid>
 </Window>

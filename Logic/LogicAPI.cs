@@ -4,9 +4,12 @@ using Data;
 
 namespace Logic
 {
+    // Logic Abstract API
     public abstract class LogicAPI
     {
         public abstract int BallsAmount { get; }
+        public abstract int AreaWidth { get; }
+        public abstract int AreaHeight { get; }
 
         public abstract event EventHandler Update;
         public abstract void AddBalls(int amount);
@@ -26,17 +29,17 @@ namespace Logic
         public abstract bool ChangeSpeed(bool change, float amount);
 
 
-        public static LogicAPI CreateLogicLayer(DataAPI data = default, ClockAPI simulationClock = default(ClockAPI))
+        public static LogicAPI CreateLogicLayer(DataAPI data = default, ClockAPI simulationClock = default)
         {
-            return new LogicLayer(data ?? DataAPI.CreateDataLayer(200, 200), simulationClock);
+            return new LogicLayer(data ?? DataAPI.CreateDataLayer(785, 265, 10, 3.0, 6.0), simulationClock ?? ClockAPI.CreateClock());
         }
 
-        public static LogicAPI CreateLogicLayer(int width, int height, ClockAPI simulationClock = default(ClockAPI))
+        public static LogicAPI CreateLogicLayer(int width, int height, int r, double minSpeed, double maxSpeed, ClockAPI simulationClock = default)
         {
-            return new LogicLayer(DataAPI.CreateDataLayer(width, height), simulationClock);
+            return new LogicLayer(DataAPI.CreateDataLayer(width, height, r, minSpeed, maxSpeed), simulationClock ?? ClockAPI.CreateClock());
         }
     }
-
+    //  Concrete implementation of LogicAPI abstract api
     internal class LogicLayer : LogicAPI
     {
         private readonly ClockAPI clock;
@@ -46,6 +49,9 @@ namespace Logic
         public override event EventHandler Update { add => clock.Tick += value; remove => clock.Tick -= value; }
 
         public override int BallsAmount => dataLayer.GetBallsList().Count;
+        public override int AreaWidth => dataLayer.Area.Width;
+        public override int AreaHeight => dataLayer.Area.Height;
+
         public LogicLayer(DataAPI api, ClockAPI simulationClock)
         {
             dataLayer = api;
@@ -128,8 +134,23 @@ namespace Logic
             bool dec = true;
             for (int i = 0; i < BallsAmount; i++)
             {
-                if (GetAllBalls()[i].Speed <= 0.5) dec = false;
-                if (GetAllBalls()[i].Speed >= 30) inc = false;
+                if (change)
+                {
+                    if (GetAllBalls()[i].Speed + amount >= 30)
+                    {
+                        inc = false;
+                        break;
+                    }
+                        
+                }
+                else
+                {
+                    if (GetAllBalls()[i].Speed - amount <= 0.5)
+                    {
+                        dec = false;
+                        break;
+                    }
+                }
             }
             if ((change && !inc) || (!change && !dec))
             {
