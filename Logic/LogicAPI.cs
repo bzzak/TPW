@@ -7,6 +7,8 @@ namespace Logic
     // Logic Abstract API
     public abstract class LogicAPI
     {
+        public float BallsMinSpeed { get; protected set; }
+        public float BallsMaxSpeed { get; protected set; }
         public abstract int BallsAmount { get; }
         public abstract int AreaWidth { get; }
         public abstract int AreaHeight { get; }
@@ -14,7 +16,7 @@ namespace Logic
         public abstract event EventHandler Update;
         public abstract void AddBalls(int amount);
         public abstract void RemoveBalls(int amount);
-        public abstract void RemoveAllBalls(int amount);
+        public abstract void RemoveAllBalls();
         public abstract void UpdateArea();
         public abstract void Start();
         public abstract void Stop();
@@ -25,18 +27,38 @@ namespace Logic
         public abstract float GetDirY(int i);
         public abstract float GetSpeed(int i);
         public abstract int GetRadius(int i);
+        public abstract int GetRadius();
         public abstract List<Ball> GetAllBalls();
         public abstract bool ChangeSpeed(bool change, float amount);
 
 
-        public static LogicAPI CreateLogicLayer(DataAPI data = default, ClockAPI simulationClock = default)
+        public static LogicAPI CreateLogicLayer(float minSpeed = 0.5f, float maxSpeed = 30.0f, DataAPI data = default, ClockAPI simulationClock = default)
         {
-            return new LogicLayer(data ?? DataAPI.CreateDataLayer(785, 265, 10, 3.0, 6.0), simulationClock ?? ClockAPI.CreateClock());
+            SortAscending(ref minSpeed, ref maxSpeed);
+            return new LogicLayer(minSpeed, maxSpeed, data ?? DataAPI.CreateDataLayer(785, 265, 10, 3.0, 6.0), simulationClock ?? ClockAPI.CreateClock());
         }
 
-        public static LogicAPI CreateLogicLayer(int width, int height, int r, double minSpeed, double maxSpeed, ClockAPI simulationClock = default)
+        public static LogicAPI CreateLogicLayer(int width, int height, int r, double minSpeedRandom, double maxSpeedRandom, float minSpeed = 0.5f, float maxSpeed = 30.0f, ClockAPI simulationClock = default)
         {
-            return new LogicLayer(DataAPI.CreateDataLayer(width, height, r, minSpeed, maxSpeed), simulationClock ?? ClockAPI.CreateClock());
+            CheckSpeedParameters(minSpeedRandom, maxSpeedRandom, minSpeed, maxSpeed);
+            return new LogicLayer(minSpeed, maxSpeed, DataAPI.CreateDataLayer(width, height, r, minSpeedRandom, maxSpeedRandom), simulationClock ?? ClockAPI.CreateClock());
+        }
+        private static void CheckSpeedParameters(double minSpeedRandom, double maxSpeedRandom, float minSpeed, float maxSpeed)
+        {
+            SortAscending(ref minSpeed, ref maxSpeed);
+            SortAscending(ref minSpeedRandom, ref maxSpeedRandom);
+            if (minSpeedRandom < minSpeed) minSpeedRandom = minSpeed;
+            if (maxSpeedRandom > maxSpeed) maxSpeedRandom = maxSpeed;
+
+        }
+        private static void SortAscending<T>(ref T val1, ref T val2) where T : IComparable<T>
+        {
+            if (val2.CompareTo(val1) < 0)
+            {
+                T temp = val1;
+                val1 = val2;
+                val2 = temp;
+            }
         }
     }
     //  Concrete implementation of LogicAPI abstract api
@@ -52,10 +74,12 @@ namespace Logic
         public override int AreaWidth => dataLayer.Area.Width;
         public override int AreaHeight => dataLayer.Area.Height;
 
-        public LogicLayer(DataAPI api, ClockAPI simulationClock)
+        public LogicLayer(float minSpeed, float maxSpeed, DataAPI api, ClockAPI simulationClock)
         {
             dataLayer = api;
             clock = simulationClock;
+            BallsMinSpeed = minSpeed;
+            BallsMaxSpeed = maxSpeed;
             SetInterval(30);
             clock.Tick += (sender, args) => UpdateArea();
         }
@@ -70,7 +94,7 @@ namespace Logic
             dataLayer.RemoveBalls(amount);
         }
 
-        public override void RemoveAllBalls(int amount)
+        public override void RemoveAllBalls()
         {
             dataLayer.ClearArea();
         }
@@ -123,6 +147,10 @@ namespace Logic
         {
             return dataLayer.GetRadius(i);
         }
+        public override int GetRadius()
+        {
+            return dataLayer.R;
+        }
         public override List<Ball> GetAllBalls()
         {
             return dataLayer.Area.BallList;
@@ -130,44 +158,53 @@ namespace Logic
 
         public override bool ChangeSpeed(bool change, float amount)
         {
-            bool inc = true;
-            bool dec = true;
-            for (int i = 0; i < BallsAmount; i++)
+            if (amount >= 0)
             {
-                if (change)
+                bool inc = true;
+                bool dec = true;
+
+                for (int i = 0; i < BallsAmount; i++)
                 {
-                    if (GetAllBalls()[i].Speed + amount >= 30)
+                    if (change)
                     {
-                        inc = false;
-                        break;
+                        if (GetAllBalls()[i].Speed + amount >= BallsMaxSpeed)
+                        {
+                            inc = false;
+                            break;
+                        }
+
                     }
-                        
-                }
-                else
-                {
-                    if (GetAllBalls()[i].Speed - amount <= 0.5)
+                    else
                     {
-                        dec = false;
-                        break;
+                        if (GetAllBalls()[i].Speed - amount <= BallsMinSpeed)
+                        {
+                            dec = false;
+                            break;
+                        }
                     }
                 }
-            }
-            if ((change && !inc) || (!change && !dec))
-            {
-                return false;
-            }
-            for (int i = 0; i < BallsAmount; i++)
-            {
-                if (change && inc)
+
+                if ((change && !inc) || (!change && !dec))
                 {
-                    GetAllBalls()[i].Speed += amount;
+                    return false;
                 }
-                else if (dec)
+
+                for (int i = 0; i < BallsAmount; i++)
                 {
-                    GetAllBalls()[i].Speed -= amount;
+                    if (change && inc)
+                    {
+                        GetAllBalls()[i].Speed += amount;
+                    }
+                    else if (dec)
+                    {
+                        GetAllBalls()[i].Speed -= amount;
+                    }
                 }
+
+                return true;
             }
-            return true;
+
+            return false;
         }
     }
 }

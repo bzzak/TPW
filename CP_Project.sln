@@ -5,15 +5,19 @@ VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "presentation", "presentation", "{7D5433A8-FB6E-4513-A675-52C47B030070}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "View", "View\View.csproj", "{88324F79-4E2F-420B-A172-14262E3F15F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "View", "View\View.csproj", "{88324F79-4E2F-420B-A172-14262E3F15F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViewModel", "ViewModel\ViewModel.csproj", "{15F824DA-C937-4970-953B-9C402DCBE996}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ViewModel", "ViewModel\ViewModel.csproj", "{15F824DA-C937-4970-953B-9C402DCBE996}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Model\Model.csproj", "{54466498-DF4B-445A-B9D7-04E135AE5DBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "Model\Model.csproj", "{54466498-DF4B-445A-B9D7-04E135AE5DBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logic", "Logic\Logic.csproj", "{95F49616-F214-494C-A87C-2ACDB9EF6117}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logic", "Logic\Logic.csproj", "{95F49616-F214-494C-A87C-2ACDB9EF6117}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", "{DA5BFE1F-A27C-49F4-96CF-067F49989F0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Data\Data.csproj", "{DA5BFE1F-A27C-49F4-96CF-067F49989F0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logic Tests", "Logic Tests\Logic Tests.csproj", "{14BE5A36-5956-49A1-9935-21E6CA7C5787}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data Tests", "Data Tests\Data Tests.csproj", "{22B976F4-ECCF-47CF-953A-BA69C99C727C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +45,14 @@ Global
 		{DA5BFE1F-A27C-49F4-96CF-067F49989F0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA5BFE1F-A27C-49F4-96CF-067F49989F0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA5BFE1F-A27C-49F4-96CF-067F49989F0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14BE5A36-5956-49A1-9935-21E6CA7C5787}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14BE5A36-5956-49A1-9935-21E6CA7C5787}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14BE5A36-5956-49A1-9935-21E6CA7C5787}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14BE5A36-5956-49A1-9935-21E6CA7C5787}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22B976F4-ECCF-47CF-953A-BA69C99C727C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22B976F4-ECCF-47CF-953A-BA69C99C727C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22B976F4-ECCF-47CF-953A-BA69C99C727C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22B976F4-ECCF-47CF-953A-BA69C99C727C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

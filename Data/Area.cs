@@ -21,7 +21,7 @@ namespace Data
             BallList = new List<Ball>();
         }
 
-        //This constructor uses the basic one and creates required amount of spheres in fixed positions.
+        //This constructor uses the basic one and creates required amount of balls in fixed positions.
         public Area(int ballAmount, int width, int height) : this(width, height)
         {
             for (int i = 0; i < ballAmount; i++)

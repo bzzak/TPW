@@ -9,8 +9,8 @@ namespace Data
     {
         public Area Area { get; set; }
         public int R { get; protected set; }
-        public double MinSpeed { get; protected set; }
-        public double MaxSpeed { get; protected set; }
+        public double MinSpeed { get; protected set; } = 0.0;
+        public double MaxSpeed { get; protected set; } = 0.0;
         public abstract int Amount { get; }
         public abstract void AddBalls(int amount);
         public abstract void RemoveBalls(int amount);
@@ -44,6 +44,8 @@ namespace Data
 
         public override void AddBalls(int amount)
         {
+            if (Amount + amount > 500) amount = 500 - Amount;
+            
             for (int i = 0; i < amount; i++)
             {
                 Area.BallList.Add(new Ball(R, Area.Width, Area.Height, MinSpeed, MaxSpeed));

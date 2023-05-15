@@ -25,9 +25,9 @@ namespace Model
             return new ModelLayer(logic ?? LogicAPI.CreateLogicLayer());
         }
 
-        public static ModelAPI CreateModelLayer(int width, int height, int r, double minSpeed, double maxSpeed, ClockAPI simulationClock = default)
+        public static ModelAPI CreateModelLayer(int width, int height, int r, double minSpeedRandom, double maxSpeedRandom, float minSpeed = 0.5f, float maxSpeed = 30.0f, ClockAPI simulationClock = default)
         {
-            return new ModelLayer(LogicAPI.CreateLogicLayer(width, height, r, minSpeed, maxSpeed, simulationClock));
+            return new ModelLayer(LogicAPI.CreateLogicLayer(width, height, r, minSpeedRandom, maxSpeedRandom, minSpeed, maxSpeed, simulationClock));
         }
     }
     //  Concrete implementation of ModelAPI abstract api
@@ -37,9 +37,9 @@ namespace Model
 
         public ModelLayer(LogicAPI logic)
         {
-            R = 25;
             logicLayer = logic;
-            
+            R = logicLayer.GetRadius();
+
             CanvasWidth = logicLayer.AreaWidth;
             CanvasHeight = logicLayer.AreaHeight;
             
