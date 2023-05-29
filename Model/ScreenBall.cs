@@ -1,29 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Logic;
 
 namespace Model
 {
    
-    public class ScreenBall
+    public class ScreenBall : IBall
     {
-        private readonly Data.Ball ball;
 
-        public int Size { get { return ball.R * 2; } }
-        public float Speed { get { return ball.Speed; } }
-        public float X { get { return ball.Position.X; } }
-        public float Y { get { return ball.Position.Y; } }
+        public float Size { get; }
 
-        //The same for direction the ball moves towards.
-        public float Direction_X { get { return ball.Direction.X; } }
-        public float Direction_Y { get { return ball.Direction.Y; } }
+        private float x;
+        private float y;
 
+        public event PropertyChangedEventHandler PropertyChanged;
 
-
-        public ScreenBall(Data.Ball b)
+        public float X
         {
-            ball = b;
+            get { return x; }
+            set
+            {
+                if (x == value) return;
+                x = value;
+                RaisePropertyChanged();
+            }
+        }
+        public float Y
+        {
+            get { return y; }
+            set
+            {
+                if (y == value) return;
+                y = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        //Constructor for visual representation of the ball.
+        public ScreenBall(float x, float y, float radius)
+        {
+            this.x = x;
+            this.y = y;
+            Size = radius * 2;
+        }
+
+        private void RaisePropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

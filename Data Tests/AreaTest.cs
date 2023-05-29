@@ -42,24 +42,24 @@ namespace Data_Tests
             Assert.AreEqual(a.BallList.Count, 0);
         }
 
-        [TestMethod]
-        public void MovingTest()
-        {
-            Area a = new Area(100, 100);
-            Ball[] balls = { new Ball(20.0f, 20.0f, 5, 3.0f), new Ball(20.0f, 20.0f, 5, 3.0f), new Ball(20.0f, 20.0f, 5, 3.0f), new Ball(20.0f, 20.0f, 5, 3.0f), new Ball(20.0f, 20.0f, 5, 3.0f) };
-            for (int i = 0; i < 5; i++)
-            {
-                a.Add(balls[i]);
-            }
+        //[TestMethod]
+        //public void MovingTest()
+        //{
+        //    Area a = new Area(100, 100);
+        //    Ball[] balls = { new Ball(20.0f, 20.0f, 5, 3.0f), new Ball(20.0f, 20.0f, 5, 3.0f), new Ball(20.0f, 20.0f, 5, 3.0f), new Ball(20.0f, 20.0f, 5, 3.0f), new Ball(20.0f, 20.0f, 5, 3.0f) };
+        //    for (int i = 0; i < 5; i++)
+        //    {
+        //        a.Add(balls[i]);
+        //    }
 
-            a.MoveAll();
+        //    a.MoveAll();
 
-            for (int i = 0; i < 5; i++)
-            {
-                Assert.AreNotEqual(balls[i].Position.X, 20);
-                Assert.AreNotEqual(balls[i].Position.Y, 20);
-            }
-        }
+        //    for (int i = 0; i < 5; i++)
+        //    {
+        //        Assert.AreNotEqual(balls[i].Position.X, 20);
+        //        Assert.AreNotEqual(balls[i].Position.Y, 20);
+        //    }
+        //}
 
 
     }

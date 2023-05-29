@@ -37,7 +37,10 @@ namespace Data
         {
             if (!(b is null))
             {
-                BallList.Add(b);
+                lock (BallList)
+                {
+                    BallList.Add(b);
+                }
             }
         }
 
@@ -46,7 +49,10 @@ namespace Data
         {
             if (!(b is null))
             {
-                BallList.Remove(b);
+                lock (BallList)
+                {
+                    BallList.Remove(b);
+                }
             }
         }
 
@@ -56,13 +62,20 @@ namespace Data
             BallList.Clear();
         }
 
-        // Invoke move method from all balls contained in ball list
-        public void MoveAll()
+        // Simple getter for balls
+        public Ball GetBall(int Id)
         {
-            for (int i = 0; i < BallList.Count; i++)
-            {
-                BallList[i].Move(Width, Height);
-            }
+            return BallList[Id];
         }
+
+
+        // Invoke move method from all balls contained in ball list
+        //public void MoveAll()
+        //{
+        //    for (int i = 0; i < BallList.Count; i++)
+        //    {
+        //        BallList[i].Move();
+        //    }
+        //}
     }
 }

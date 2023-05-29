@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Numerics;
+using System.Reactive;
+using System.Reactive.Linq;
 using Logic;
 
-namespace Model
+namespace Model 
 {
     // Model Abstract API
-    public abstract class ModelAPI
+    public abstract class ModelAPI : IObserver<int>, IObservable<IBall>
     {
         public int CanvasWidth { get; set; }
         public int CanvasHeight { get; set; }
@@ -14,51 +18,127 @@ namespace Model
         
         public int R { get; set; }
 
-        public abstract void AddScreenBalls(int amount);
-        public abstract void RemoveScreenBalls(int amount);
-        public abstract void Start();
-        public abstract void Stop();
+        public abstract void AddPresentBalls();
+        public abstract void AddBalls(int amount);
+        public abstract void RemoveBalls(int amount);
+        public abstract void MoveAllBalls();
+        public abstract void MoveBall(int id);
         public abstract bool ChangeSpeed(bool b, float amount);
+        public abstract void Subscribe(IObservable<int> provider);
+        public abstract void OnCompleted();
+        public abstract void OnError(Exception error);
+        public abstract void OnNext(int value);
+        public abstract IDisposable Subscribe(IObserver<IBall> observer);
 
         public static ModelAPI CreateModelLayer(LogicAPI logic = default)
         {
             return new ModelLayer(logic ?? LogicAPI.CreateLogicLayer());
         }
 
-        public static ModelAPI CreateModelLayer(int width, int height, int r, double minSpeedRandom, double maxSpeedRandom, float minSpeed = 0.5f, float maxSpeed = 30.0f, ClockAPI simulationClock = default)
+        public static ModelAPI CreateModelLayer(int width, int height, double minSpeedRandom, double maxSpeedRandom, float minSpeed = 0.5f, float maxSpeed = 30.0f)
         {
-            return new ModelLayer(LogicAPI.CreateLogicLayer(width, height, r, minSpeedRandom, maxSpeedRandom, minSpeed, maxSpeed, simulationClock));
+            return new ModelLayer(LogicAPI.CreateLogicLayer(width, height, minSpeedRandom, maxSpeedRandom, minSpeed, maxSpeed));
         }
     }
+
+    //Interface for IBall (model representation of ball, that notifies when something changed with their property).
+    public interface IBall : INotifyPropertyChanged
+    {
+        float X { get; }
+        float Y { get; }
+        float Size { get; }
+    }
+
+    public class BallChangeEventArgs : EventArgs
+    {
+        public IBall Ball { get; set; }
+    }
+
+    public interface INotifyBallChanged
+    {
+        // Occurs when a property value changes.In this case: Sphere.
+        event EventHandler<BallChangeEventArgs> BallChanged;
+    }
+
     //  Concrete implementation of ModelAPI abstract api
     internal class ModelLayer : ModelAPI
     {
         private readonly LogicAPI logicLayer;
 
+        //All those things necesseary to observe model layer and event handler for it.
+        private IDisposable unsubscriber;
+        public event EventHandler<BallChangeEventArgs> BallChanged;
+        private IObservable<EventPattern<BallChangeEventArgs>> eventObservable = null;
+
         public ModelLayer(LogicAPI logic)
         {
+            eventObservable = Observable.FromEventPattern<BallChangeEventArgs>(this, "BallChanged");
             logicLayer = logic;
-            R = logicLayer.GetRadius();
+            R = 5;
 
             CanvasWidth = logicLayer.AreaWidth;
             CanvasHeight = logicLayer.AreaHeight;
             
             ScreenBalls = new List<ScreenBall>();
-
-            ScreenBallsRefresh();
+            AddPresentBalls();
+            Subscribe(logicLayer);
         }
 
-        public override void AddScreenBalls(int amount)
+        //Method for adding particular amount of spheres to the presentation layer.
+        public override void AddPresentBalls()
         {
-            logicLayer.AddBalls(amount);
-            ScreenBallsRefresh();
+            for (int i = 0; i < logicLayer.BallsAmount; i++)
+            {
+                AddScreenBall(i);
+            }
+        }
+
+        public override void AddBalls(int amount)
+        {
+            if (logicLayer.BallsAmount + amount > 500) amount = 500 - logicLayer.BallsAmount;
+
+            for (int i = 0; i < amount; i++)
+            {
+                logicLayer.AddBall();
+                AddScreenBall(logicLayer.BallsAmount - 1);
+            }
+
+            foreach (ScreenBall ball in ScreenBalls)
+            {
+                BallChanged?.Invoke(this, new BallChangeEventArgs() { Ball = ball });
+            }
+        }
+
+        public override void RemoveBalls(int amount)
+        {
+            int startIndex = amount > logicLayer.BallsAmount ? 0 : logicLayer.BallsAmount - amount;
+            int amountBeforeRemove = logicLayer.BallsAmount;
+
+            for (int i = startIndex; i < amountBeforeRemove; i++)
+            {
+                bool success = logicLayer.RemoveBall();
+                if(success) RemoveScreenBall();
+            }
+
+            foreach (ScreenBall ball in ScreenBalls)
+            {
+                BallChanged?.Invoke(this, new BallChangeEventArgs() { Ball = ball });
+            }
 
         }
 
-        public override void RemoveScreenBalls(int amount)
+        //Adding single visualisation of a ball based on logicLayer.
+        public void AddScreenBall(int id)
         {
-            logicLayer.RemoveBalls(amount);
-            ScreenBallsRefresh();
+            Vector2 position = logicLayer.GetPosition(id);
+            float radius = logicLayer.GetRadius(id);
+            ScreenBalls.Add(new ScreenBall(position.X, position.Y, radius));
+        }
+
+        //Removing single visualisation of a ball based on logicLayer.
+        public void RemoveScreenBall()
+        {
+            ScreenBalls.Remove(ScreenBalls[ScreenBalls.Count - 1]);
         }
 
         public override bool ChangeSpeed(bool b, float amount)
@@ -66,35 +146,67 @@ namespace Model
             bool success = logicLayer.ChangeSpeed(b, amount);
             if (success)
             {
-                ScreenBallsRefresh();
+                foreach (ScreenBall ball in ScreenBalls)
+                {
+                    BallChanged?.Invoke(this, new BallChangeEventArgs() { Ball = ball });
+                }
             }
 
             return success;
         }
-
-        public override void Start()
+        //Triggering movement in logical layer.
+        public override void MoveAllBalls()
         {
-            logicLayer.Start();
+            logicLayer.UpdateArea();
         }
 
-        public override void Stop()
+        public override void MoveBall(int id)
         {
-            logicLayer.Stop();
+            logicLayer.UpdateBall(id);
         }
 
-        private void ScreenBallsRefresh()
+        //Refreshing sphere visualization based on movement in logic layer.
+        public void UpdateBall(int id)
         {
-            lock (ScreenBalls)
-            {
-                ScreenBalls.Clear();
-                lock (logicLayer.GetAllBalls())
-                {
-                    for (int i = 0; i < logicLayer.BallsAmount; i++)
-                    {
-                        ScreenBalls.Add(new ScreenBall(logicLayer.GetAllBalls()[i]));
-                    }
-                }
-            }
+            Vector2 position = logicLayer.GetPosition(id);
+            ScreenBalls[id].X = position.X;
+            ScreenBalls[id].Y = position.Y;
         }
+        
+
+        #region observer
+
+        public override void Subscribe(IObservable<int> provider)
+        {
+            if (provider != null)
+                unsubscriber = provider.Subscribe(this);
+        }
+
+        public override void OnCompleted()
+        {
+            unsubscriber.Dispose();
+        }
+
+        public override void OnError(Exception error)
+        {
+            throw error;
+        }
+
+        public override void OnNext(int id)
+        {
+            UpdateBall(id);
+        }
+
+        #endregion
+
+        #region provider
+
+        public override IDisposable Subscribe(IObserver<IBall> observer)
+        {
+            return eventObservable.Subscribe(x => observer.OnNext(x.EventArgs.Ball), ex => observer.OnError(ex), () => observer.OnCompleted());
+        }
+
+        #endregion
+
     }
 }

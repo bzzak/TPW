@@ -49,7 +49,7 @@ namespace ViewModel
         public ICommand LowerSpeedIntervalAction { get; set; }
         public ICommand IncreaseSpeedIntervalAction { get; set; }
 
-        public ObservableCollection<ScreenBall> Balls { get; set; } = new ObservableCollection<ScreenBall>();
+        public ObservableCollection<IBall> Balls { get; set; } = new ObservableCollection<IBall>();
 
         public string AmountText
         {
@@ -175,6 +175,7 @@ namespace ViewModel
             SetSpeedChangeStatus("WAITING FOR ACTION", StatusType.Info);
 
             modelLayer = ModelAPI.CreateModelLayer();
+            IDisposable observer = modelLayer.Subscribe<IBall>(x => Balls.Add(x));
             for (int i = 0; i < modelLayer.ScreenBalls.Count; i++)
             {
                 Balls.Add(modelLayer.ScreenBalls[i]);
@@ -190,7 +191,7 @@ namespace ViewModel
             {
                 IsReadyToStart = false;
 
-                modelLayer.AddScreenBalls(BallsAmount);
+                modelLayer.AddBalls(BallsAmount);
                 
                 Balls.Clear();
                 for (int i = 0; i < modelLayer.ScreenBalls.Count; i++)
@@ -212,18 +213,14 @@ namespace ViewModel
                 CanStop = true;
                 CanResume = false;
 
-                simulationThread = new Task(Simulation, Token);
-
-                modelLayer.Start();
-                simulationThread.Start();
+                modelLayer.MoveAllBalls();
+                //simulationThread = new Task(Simulation, Token);
+                //simulationThread.Start();
             }
         }
         private void StopSimulation()
         {
-            CanStop = false;
-            CanResume = true;
-
-            modelLayer.Stop();
+            
         }
 
         private void Simulation()
@@ -232,19 +229,25 @@ namespace ViewModel
             {
                 lock (modelLayer.ScreenBalls)
                 {
-                    Balls = new ObservableCollection<ScreenBall>(modelLayer.ScreenBalls);
+                    Balls = new ObservableCollection<IBall>(modelLayer.ScreenBalls);
                 }
                 RaisePropertyChanged(nameof(Balls));
             }
         }
         private void AddBalls()
         {
-            modelLayer.AddScreenBalls(BallsAmount);
+            int startIndex = BallsOnScreen;
+            int endIndex = BallsOnScreen + BallsAmount - 1;
+            modelLayer.AddBalls(BallsAmount);
             RaisePropertyChanged("BallsOnScreen");
+            for(int i = startIndex; i < endIndex; i++)
+            {
+                modelLayer.MoveBall(i);
+            }
         }
         private void RemoveBalls()
         {
-            modelLayer.RemoveScreenBalls(BallsAmount);
+            modelLayer.RemoveBalls(BallsAmount);
             RaisePropertyChanged("BallsOnScreen");
         }
         private void IncreaseSpeed()
