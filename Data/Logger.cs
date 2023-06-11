@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace Data
 {
@@ -39,24 +41,17 @@ namespace Data
 
         public void Logging()
         {
-            //Stoper to save logs every 10ms
-            Stopwatch stopwatch = Stopwatch.StartNew();
             //looped task
             while (true)
             {
-                if (stopwatch.ElapsedMilliseconds % 10 == 0)
+                //save logs that havent been saved to file yet in temporary queue
+                Queue<String> tmp = GetLogs();
+
+                //If queue isnt empty save this new logs in file
+                while (tmp.Count > 0)
                 {
-                    //save logs that havent been saved to file yet in temporary queue
-                    Queue<String> tmp = GetLogs();
-
-                    //If queue isnt empty save this new logs in file
-                    while (tmp.Count > 0)
-                    {
-                        //append each log into the file       
-                        File.AppendAllText(file, tmp.Dequeue() + "\n\n");
-                    }
-
-
+                    //append each log into the file       
+                    File.AppendAllText(file, tmp.Dequeue() + "\n\n");
                 }
             }
         }

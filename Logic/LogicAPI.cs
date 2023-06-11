@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Data;
+using System.Timers;
 
 namespace Logic
 {
@@ -86,6 +87,13 @@ namespace Logic
             //create logger
             logger = new Data.Logger();
             logger.StartLogging();
+
+            //create timer
+            Timer timer = new Timer(3000);
+
+            timer.Elapsed += OnTimedEvent;
+            timer.AutoReset = true;
+            timer.Enabled = true;
         }
 
         public override void AddBall()
@@ -250,15 +258,18 @@ namespace Logic
         {
             throw error;
         }
-
+        public void OnTimedEvent(Object source, ElapsedEventArgs e)
+        {
+            for (int i = 0; i < dataLayer.Amount; i++)
+            {
+                logger.AddLog(dataLayer.Log(i));
+            }
+        }
         public override void OnNext(Ball ball)
         {
             if (dataLayer.GetBallsList().Contains(ball))
             {
                 int id = dataLayer.GetBallsList().IndexOf(ball);
-
-                //use OnNext method to always creaty entry in the log whenever a ball is going to move
-                logger.AddLog(dataLayer.Log(id));
 
                 //for every sphere check for border collision, collision with other balls and then notify observers.
                 CheckBoundries(id);
