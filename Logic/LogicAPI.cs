@@ -65,6 +65,7 @@ namespace Logic
     internal class LogicLayer : LogicAPI
     {
         private readonly DataAPI dataLayer;
+        private Data.Logger logger;
         private IDisposable unsubscriber;
         private IList<IObserver<int>> observers;
 
@@ -81,6 +82,10 @@ namespace Logic
             observers = new List<IObserver<int>>();
             BallsMinSpeed = minSpeed;
             BallsMaxSpeed = maxSpeed;
+
+            //create logger
+            logger = new Data.Logger();
+            logger.StartLogging();
         }
 
         public override void AddBall()
@@ -251,14 +256,18 @@ namespace Logic
             if (dataLayer.GetBallsList().Contains(ball))
             {
                 int id = dataLayer.GetBallsList().IndexOf(ball);
-                //For every sphere we check for border collision, collision with other balls and then notify observers.
+
+                //use OnNext method to always creaty entry in the log whenever a ball is going to move
+                logger.AddLog(dataLayer.Log(id));
+
+                //for every sphere check for border collision, collision with other balls and then notify observers.
                 CheckBoundries(id);
                 CheckCollisions(id);
                 NotifyObservers(id);
             }
         }
 
-        //When notified, we go with next ball.
+        //notify all observers
         public void NotifyObservers(int id)
         {
             foreach (var observer in observers)

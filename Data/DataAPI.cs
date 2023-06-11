@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Threading;
+using System.Text;
 
 namespace Data 
 {
@@ -31,6 +31,7 @@ namespace Data
         public abstract void OnError(Exception error);
         public abstract void OnNext(Ball ball);
         public abstract IDisposable Subscribe(IObserver<Ball> observer);
+        public abstract string Log(int id);
 
         public static DataAPI CreateDataLayer(int width, int height, double minSpeed, double maxSpeed)
         {
@@ -124,6 +125,28 @@ namespace Data
         public override void StartMovingBall(int i)
         {
             area.BallList[i].StartMoving();
+        }
+        public override string Log(int id)
+        {
+            Ball ball = GetBallsList()[id];
+
+            //this StringBulider is responsible for assembling our string for the logger
+            StringBuilder logMessage = new StringBuilder();
+
+            //first log ball id
+            logMessage.Append($"Ball[{id}]\n");
+
+            //log position
+            logMessage.Append($"X: {ball.Position.X}\n");
+            logMessage.Append($"Y: {ball.Position.Y}\n");
+
+            //log movement it's about to make
+            logMessage.Append($"X move: {ball.Direction.X}\n");
+            logMessage.Append($"Y move: {ball.Direction.Y}\n");
+            //log speed
+            logMessage.Append($"Speed: {ball.Speed}\n\n");
+
+            return logMessage.ToString();
         }
 
         #region Observer
